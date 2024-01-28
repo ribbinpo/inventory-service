@@ -68,3 +68,6 @@ ehthumbs.db
 
 # Ignore directories used for profiling in Visual Studio
 _pgo/
+
+# Ignore Visual Studio cache files
+mysql-data/
