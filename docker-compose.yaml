@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   inventory-db:
@@ -14,5 +14,21 @@ services:
       - 3306:3306
     volumes:
       - ./mysql-data:/var/lib/mysql
+    networks:
+      - inventory-network
+  inventory-service:
+    container_name: inventory-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - inventory-db
+    networks:
+      - inventory-network
 volumes:
   mysql-data:
+networks:
+  inventory-network:
+    driver: bridge
