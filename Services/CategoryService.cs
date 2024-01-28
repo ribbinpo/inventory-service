@@ -1,39 +1,89 @@
+using Microsoft.EntityFrameworkCore;
+
 using inventory_service.DTO;
 using inventory_service.Entities;
 
 namespace inventory_service.Services;
-public class CategoryService
+public class CategoryService(InventoryDbContext dbContext)
 {
-  public string GetCategories(int page, int limit)
-  {
-    Console.WriteLine($"Page: {page}, Limit: {limit}");
-    return "GetCategories";
-  }
+  private readonly InventoryDbContext _dbContext = dbContext;
 
-  public int GetCategoryById(int id)
+  public async Task<List<Category>> FindAll(int page, int limit)
   {
-    return id;
-  }
-
-  public Category CreateCategory(CreateCategoryDto category)
-  {
-    var newCategory = new Category
+    try
     {
-      Id = 1,
+      var categories = await _dbContext.Categories.Skip((page - 1) * limit).Take(limit).ToListAsync();
+      return categories;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
+  }
+
+  public async Task<Category?> GetCategoryById(int id)
+  {
+    try
+    {
+      var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);
+      return category;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
+  }
+
+  public async Task<Category> CreateOne(CreateCategoryDto category)
+  {
+    var newCategory = new Category()
+    {
       Name = category.Name,
       Description = category.Description
     };
-    return newCategory;
+    try
+    {
+      await _dbContext.Categories.AddAsync(newCategory);
+      var id = await _dbContext.SaveChangesAsync();
+      newCategory.Id = id;
+      return newCategory;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
   }
 
-  public string UpdateCategory(int id, UpdateCategoryDto category)
+  public async Task<bool> IsCategoryExists(string name)
   {
-    Console.WriteLine($"UpdateCategory {category.Name}");
-    return $"UpdateCategory {id}";
+    return await _dbContext.Categories.AnyAsync(c => c.Name == name);
   }
 
-  public string DeleteCategory(int id)
+  public async Task<int> UpdateCategory(int id, UpdateCategoryDto category)
   {
-    return $"DeleteCategory {id}";
+    try
+    {
+      var _category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception($"Category with id {id} not found");
+      _category.Name = category.Name ?? _category.Name;
+      _category.Description = category.Description ?? _category.Description;
+      var _id = await _dbContext.SaveChangesAsync();
+      return _category.Id;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
+  }
+
+  public async Task<int> DeleteCategory(int id)
+  {
+    var _category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception($"Category with id {id} not found");
+    _dbContext.Categories.Remove(_category);
+    var _id = await _dbContext.SaveChangesAsync();
+    return _category.Id;
   }
 }

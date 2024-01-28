@@ -1,4 +1,5 @@
 using inventory_service.DTO;
+using inventory_service.Entities;
 using inventory_service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,38 +12,46 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
 
   [HttpGet]
   [ApiExplorerSettings(GroupName = "Categories")]
-  public IActionResult GetCategories([FromQuery] int page, [FromQuery] int limit)
+  public async Task<ActionResult<List<Category>>> GetCategories([FromQuery] int page, [FromQuery] int limit)
   {
-    _categoryService.GetCategories(page, limit);
-    return Ok("GetCategories");
+    var _categories = await _categoryService.FindAll(page, limit);
+    return _categories;
   }
 
   [HttpGet("{id}")]
   [ApiExplorerSettings(GroupName = "Categories")]
-  public IActionResult GetCategoryById(int id)
+  public async Task<ActionResult<Category>> GetCategoryById(int id)
   {
-    var _id = _categoryService.GetCategoryById(id);
-    return Ok($"GetCategory {_id}");
+    var _category = await _categoryService.GetCategoryById(id);
+    if (_category == null)
+    {
+      return NotFound($"Category with id {id} not found");
+    }
+    return _category;
   }
 
   [HttpPost]
-  public IActionResult CreateCategory([FromBody] CreateCategoryDto category)
+  public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto category)
   {
-    var _category = _categoryService.CreateCategory(category);
+    if (await _categoryService.IsCategoryExists(category.Name))
+    {
+      return BadRequest("This Category already exists");
+    }
+    var _category = await _categoryService.CreateOne(category);
     return Created("CreateCategory", _category);
   }
 
   [HttpPatch("{id}")]
-  public IActionResult UpdateCategory(int id, [FromBody] UpdateCategoryDto category)
+  public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto category)
   {
-    _categoryService.UpdateCategory(id, category);
-    return Ok($"UpdateCategory {id}");
+    var _id = await _categoryService.UpdateCategory(id, category);
+    return Ok($"UpdateCategory {_id}");
   }
 
   [HttpDelete("{id}")]
-  public IActionResult DeleteCategory(int id)
+  public async Task<IActionResult> DeleteCategory(int id)
   {
-    _categoryService.DeleteCategory(id);
-    return Ok($"DeleteCategory {id}");
+    var _id = await _categoryService.DeleteCategory(id);
+    return Ok($"DeleteCategory {_id}");
   }
 }
