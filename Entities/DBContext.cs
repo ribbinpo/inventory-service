@@ -20,6 +20,9 @@ public partial class InventoryDbContext(DbContextOptions<InventoryDbContext> opt
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<Product>().HasOne(p => p.Manufacturer).WithMany(m => m.Products).HasForeignKey(p => p.ManufacturerId).OnDelete(DeleteBehavior.Restrict);
+    modelBuilder.Entity<Product>().HasIndex(p => p.Name).IsUnique();
+    modelBuilder.Entity<Category>().HasIndex(c => c.Name).IsUnique();
+    modelBuilder.Entity<Manufacturer>().HasIndex(m => m.Name).IsUnique();
     modelBuilder.Entity<CategoryProduct>().HasKey(cp => new { cp.CategoryId, cp.ProductId });
     modelBuilder.Entity<CategoryProduct>().HasOne(cp => cp.Category).WithMany(c => c.CategoryProducts).HasForeignKey(cp => cp.CategoryId).OnDelete(DeleteBehavior.Restrict);
     modelBuilder.Entity<CategoryProduct>().HasOne(cp => cp.Product).WithMany(p => p.CategoryProducts).HasForeignKey(cp => cp.ProductId).OnDelete(DeleteBehavior.Restrict);
