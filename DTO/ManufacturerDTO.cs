@@ -6,13 +6,13 @@ public class CreateManufacturerDTO
 {
   [Required]
   [MaxLength(50)]
-  public string? Name { get; set; }
+  public required string Name { get; set; }
   [Required]
   [EmailAddress]
-  public string? Email { get; set; }
+  public required string Email { get; set; }
   [Required]
   [Phone]
-  public string? Phone { get; set; }
+  public required string Phone { get; set; }
   [Required]
   public string? Address { get; set; }
 }

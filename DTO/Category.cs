@@ -4,7 +4,7 @@ namespace inventory_service.DTO;
 public class CreateCategoryDto
 {
   [Required]
-  public string? Name { get; set; }
+  public required string Name { get; set; }
   public string? Description { get; set; }
 }
 
