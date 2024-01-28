@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using inventory_service.DTO;
 using inventory_service.Services;
+using inventory_service.Entities;
 
 namespace inventory_service.Controllers;
 [ApiController]
@@ -10,40 +11,48 @@ public class ProductController(ProductService productService) : ControllerBase
 {
   private readonly ProductService _productService = productService;
 
-    [HttpGet]
+  [HttpGet]
   [ApiExplorerSettings(GroupName = "Products")]
-  public IActionResult GetProducts([FromQuery] int page, [FromQuery] int limit)
+  public async Task<ActionResult<List<Product>>> GetProducts([FromQuery] int page, [FromQuery] int limit)
   {
-    _productService.GetProducts(page, limit);
-    return Ok("GetProducts");
+    var _products = await _productService.FindAll(page, limit);
+    return _products;
   }
 
   [HttpGet("{id}")]
   [ApiExplorerSettings(GroupName = "Products")]
-  public IActionResult GetProductById(int id)
+  public async Task<ActionResult<Product>> GetProductById(int id)
   {
-    var _id = _productService.GetProductById(id);
-    return Ok($"GetProduct {_id}");
+    var _product = await _productService.FindById(id);
+    if (_product == null)
+    {
+      return NotFound($"Product with id {id} not found");
+    }
+    return _product;
   }
 
   [HttpPost]
-  public IActionResult CreateProduct(CreateProductDTO product)
+  public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO product)
   {
-    var _product = _productService.CreateProduct(product);
+    if (await _productService.IsProductExists(product.Name))
+    {
+      return BadRequest("This Product already exists");
+    }
+    var _product = await _productService.CreateOne(product);
     return Created("CreateProduct", _product);
   }
 
   [HttpPatch("{id}")]
-  public IActionResult UpdateProduct(int id, [FromBody] UpdateProductDTO product)
+  public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDTO product)
   {
-    _productService.UpdateProduct(id, product);
-    return Ok($"UpdateProduct {id}");
+    var _id = await _productService.UpdateOne(id, product);
+    return Ok($"UpdateProduct {_id}");
   }
 
   [HttpDelete("{id}")]
-  public IActionResult DeleteProduct(int id)
+  public async Task<IActionResult> DeleteProduct(int id)
   {
-    _productService.DeleteProduct(id);
-    return Ok($"DeleteProduct {id}");
+    var _id = await _productService.DeleteOne(id);
+    return Ok($"DeleteProduct {_id}");
   }
 }

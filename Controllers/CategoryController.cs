@@ -22,7 +22,7 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
   [ApiExplorerSettings(GroupName = "Categories")]
   public async Task<ActionResult<Category>> GetCategoryById(int id)
   {
-    var _category = await _categoryService.GetCategoryById(id);
+    var _category = await _categoryService.FindById(id);
     if (_category == null)
     {
       return NotFound($"Category with id {id} not found");
@@ -44,14 +44,14 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
   [HttpPatch("{id}")]
   public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto category)
   {
-    var _id = await _categoryService.UpdateCategory(id, category);
+    var _id = await _categoryService.UpdateOne(id, category);
     return Ok($"UpdateCategory {_id}");
   }
 
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteCategory(int id)
   {
-    var _id = await _categoryService.DeleteCategory(id);
+    var _id = await _categoryService.DeleteOne(id);
     return Ok($"DeleteCategory {_id}");
   }
 }

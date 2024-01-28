@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using inventory_service.DTO;
 using inventory_service.Services;
+using inventory_service.Entities;
 
 namespace inventory_service.Controllers;
 [ApiController]
@@ -10,40 +11,48 @@ public class ManufacturerController(ManufacturerService manufacturerService) : C
 {
   private readonly ManufacturerService _manufacturerService = manufacturerService;
 
-    [HttpGet]
+  [HttpGet]
   [ApiExplorerSettings(GroupName = "Manufacturers")]
-  public IActionResult GetManufacturers([FromQuery] int page, [FromQuery] int limit)
+  public async Task<ActionResult<List<Manufacturer>>> GetManufacturers([FromQuery] int page, [FromQuery] int limit)
   {
-    _manufacturerService.GetManufacturers(page, limit);
-    return Ok("GetManufacturers");
+    var _manufacturers = await _manufacturerService.FindAll(page, limit);
+    return _manufacturers;
   }
 
   [HttpGet("{id}")]
   [ApiExplorerSettings(GroupName = "Manufacturers")]
-  public IActionResult GetManufacturerById(int id)
+  public async Task<ActionResult<Manufacturer>> GetManufacturerById(int id)
   {
-    var _id = _manufacturerService.GetManufacturerById(id);
-    return Ok($"GetManufacturer {_id}");
+    var _manufacturer = await _manufacturerService.FindById(id);
+    if (_manufacturer == null)
+    {
+      return NotFound($"Manufacturer with id {id} not found");
+    }
+    return _manufacturer;
   }
 
   [HttpPost]
-  public IActionResult CreateManufacturer(CreateManufacturerDTO manufacturer)
+  public async Task<IActionResult> CreateManufacturer([FromBody] CreateManufacturerDTO manufacturer)
   {
-    var _manufacturer = _manufacturerService.CreateManufacturer(manufacturer);
+    if (await _manufacturerService.IsManufacturerExists(manufacturer.Name))
+    {
+      return BadRequest("This Manufacturer already exists");
+    }
+    var _manufacturer = await _manufacturerService.CreateOne(manufacturer);
     return Created("CreateManufacturer", _manufacturer);
   }
 
   [HttpPatch("{id}")]
-  public IActionResult UpdateManufacturer(int id, [FromBody] UpdateManufacturerDTO manufacturer)
+  public async Task<IActionResult> UpdateManufacturer(int id, [FromBody] UpdateManufacturerDTO manufacturer)
   {
-    _manufacturerService.UpdateManufacturer(id, manufacturer);
-    return Ok($"UpdateManufacturer {id}");
+    var _id = await _manufacturerService.UpdateOne(id, manufacturer);
+    return Ok($"UpdateManufacturer {_id}");
   }
 
   [HttpDelete("{id}")]
-  public IActionResult DeleteManufacturer(int id)
+  public async Task<IActionResult> DeleteManufacturer(int id)
   {
-    _manufacturerService.DeleteManufacturer(id);
-    return Ok($"DeleteManufacturer {id}");
+    var _id = await _manufacturerService.DeleteOne(id);
+    return Ok($"DeleteManufacturer {_id}");
   }
 }

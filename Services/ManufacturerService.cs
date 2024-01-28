@@ -1,41 +1,93 @@
+using Microsoft.EntityFrameworkCore;
+
 using inventory_service.DTO;
 using inventory_service.Entities;
 
 namespace inventory_service.Services;
-public class ManufacturerService
+public class ManufacturerService(InventoryDbContext dbContext)
 {
-  public string GetManufacturers(int page, int limit)
+  private readonly InventoryDbContext _dbContext = dbContext;
+
+  public async Task<List<Manufacturer>> FindAll(int page, int limit)
   {
-    Console.WriteLine($"Page: {page}, Limit: {limit}");
-    return "GetManufacturers";
+    try
+    {
+      var manufacturers = await _dbContext.Manufacturers.Skip((page - 1) * limit).Take(limit).ToListAsync();
+      return manufacturers;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
   }
 
-  public int GetManufacturerById(int id)
+  public async Task<Manufacturer?> FindById(int id)
   {
-    return id;
+    try
+    {
+      var manufacturer = await _dbContext.Manufacturers.FirstOrDefaultAsync(c => c.Id == id);
+      return manufacturer;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
   }
 
-  public Manufacturer CreateManufacturer(CreateManufacturerDTO manufacturer)
+  public async Task<Manufacturer> CreateOne(CreateManufacturerDTO manufacturer)
   {
     var newManufacturer = new Manufacturer
     {
-      Id = 1,
       Name = manufacturer.Name,
       Email = manufacturer.Email,
       Phone = manufacturer.Phone,
       Address = manufacturer.Address
     };
-    return newManufacturer;
+    try
+    {
+      await _dbContext.Manufacturers.AddAsync(newManufacturer);
+      var id = await _dbContext.SaveChangesAsync();
+      newManufacturer.Id = id;
+      return newManufacturer;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
   }
 
-  public string UpdateManufacturer(int id, UpdateManufacturerDTO manufacturer)
+  public async Task<bool> IsManufacturerExists(string name)
   {
-    Console.WriteLine($"UpdateManufacturer {manufacturer.Name}");
-    return $"UpdateManufacturer {id}";
+    return await _dbContext.Manufacturers.AnyAsync(c => c.Name == name);
   }
 
-  public string DeleteManufacturer(int id)
+  public async Task<int> UpdateOne(int id, UpdateManufacturerDTO manufacturer)
   {
-    return $"DeleteManufacturer {id}";
+    try
+    {
+      var _manufacturer = await _dbContext.Manufacturers.FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception($"Category with id {id} not found");
+      _manufacturer.Name = manufacturer.Name ?? _manufacturer.Name;
+      _manufacturer.Email = manufacturer.Email ?? _manufacturer.Email;
+      _manufacturer.Phone = manufacturer.Phone ?? _manufacturer.Phone;
+      _manufacturer.Address = manufacturer.Address ?? _manufacturer.Address;
+      var _id = await _dbContext.SaveChangesAsync();
+      return _manufacturer.Id;
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+      throw new Exception(e.Message);
+    }
+  }
+
+  public async Task<int> DeleteOne(int id)
+  {
+    var _manufacturer = await _dbContext.Manufacturers.FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception($"Category with id {id} not found");
+    _dbContext.Manufacturers.Remove(_manufacturer);
+    var _id = await _dbContext.SaveChangesAsync();
+    return _manufacturer.Id;
   }
 }

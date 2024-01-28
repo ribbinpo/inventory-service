@@ -22,7 +22,7 @@ public class CategoryService(InventoryDbContext dbContext)
     }
   }
 
-  public async Task<Category?> GetCategoryById(int id)
+  public async Task<Category?> FindById(int id)
   {
     try
     {
@@ -62,7 +62,7 @@ public class CategoryService(InventoryDbContext dbContext)
     return await _dbContext.Categories.AnyAsync(c => c.Name == name);
   }
 
-  public async Task<int> UpdateCategory(int id, UpdateCategoryDto category)
+  public async Task<int> UpdateOne(int id, UpdateCategoryDto category)
   {
     try
     {
@@ -79,7 +79,7 @@ public class CategoryService(InventoryDbContext dbContext)
     }
   }
 
-  public async Task<int> DeleteCategory(int id)
+  public async Task<int> DeleteOne(int id)
   {
     var _category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception($"Category with id {id} not found");
     _dbContext.Categories.Remove(_category);
