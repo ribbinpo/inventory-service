@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using inventory_service.Entities;
 using inventory_service.Services;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,10 @@ builder.Services.AddEntityFrameworkMySql().AddDbContext<InventoryDbContext>((ser
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    });
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ManufacturerService>();
 builder.Services.AddScoped<CategoryService>();
