@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 
 using inventory_service.DTO;
-using inventory_service.Entities;
+using inventory_service.Data.Entities;
 
-namespace inventory_service.Services;
+namespace inventory_service.Data.Services;
 public class ManufacturerService(InventoryDbContext dbContext)
 {
   private readonly InventoryDbContext _dbContext = dbContext;

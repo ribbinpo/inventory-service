@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace inventory_service.Entities;
+namespace inventory_service.Data.Entities;
 public partial class InventoryDbContext(DbContextOptions<InventoryDbContext> options, IConfiguration configuration) : DbContext(options)
 {
   private readonly IConfiguration _configuration = configuration;

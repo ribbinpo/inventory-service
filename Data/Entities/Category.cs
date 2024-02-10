@@ -1,4 +1,4 @@
-namespace inventory_service.Entities;
+namespace inventory_service.Data.Entities;
 public class Category
 {
   public int Id { get; set; }

@@ -1,6 +1,6 @@
 using inventory_service.DTO;
-using inventory_service.Entities;
-using inventory_service.Services;
+using inventory_service.Data.Entities;
+using inventory_service.Data.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inventory_service.Controllers;
@@ -44,6 +44,10 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
   [HttpPatch("{id}")]
   public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto category)
   {
+    if (category.Name != null && await _categoryService.IsCategoryExists(category.Name))
+    {
+      return BadRequest("This Category already exists");
+    }
     var _id = await _categoryService.UpdateOne(id, category);
     return Ok($"UpdateCategory {_id}");
   }

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
 using inventory_service.DTO;
-using inventory_service.Services;
-using inventory_service.Entities;
+using inventory_service.Data.Services;
+using inventory_service.Data.Entities;
 
 namespace inventory_service.Controllers;
 [ApiController]
@@ -45,6 +45,10 @@ public class ManufacturerController(ManufacturerService manufacturerService) : C
   [HttpPatch("{id}")]
   public async Task<IActionResult> UpdateManufacturer(int id, [FromBody] UpdateManufacturerDTO manufacturer)
   {
+    if (manufacturer.Name != null && await _manufacturerService.IsManufacturerExists(manufacturer.Name))
+    {
+      return BadRequest("This Category already exists");
+    }
     var _id = await _manufacturerService.UpdateOne(id, manufacturer);
     return Ok($"UpdateManufacturer {_id}");
   }

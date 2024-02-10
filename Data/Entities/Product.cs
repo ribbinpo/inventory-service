@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace inventory_service.Entities;
+namespace inventory_service.Data.Entities;
 public class Product
 {
   public int Id { get; set; }

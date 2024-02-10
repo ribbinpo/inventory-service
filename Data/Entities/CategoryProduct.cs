@@ -1,5 +1,5 @@
 // For Many-to-Many relationship between Category and Product
-namespace inventory_service.Entities;
+namespace inventory_service.Data.Entities;
 public class CategoryProduct {
   public int CategoryId { get; set; }
   public required Category Category { get; set; }

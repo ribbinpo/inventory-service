@@ -1,8 +1,9 @@
-using inventory_service.DTO;
-using inventory_service.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace inventory_service.Services;
+using inventory_service.DTO;
+using inventory_service.Data.Entities;
+
+namespace inventory_service.Data.Services;
 public class ProductService(InventoryDbContext dbContext)
 {
   private readonly InventoryDbContext _dbContext = dbContext;
