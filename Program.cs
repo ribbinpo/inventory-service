@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
-using inventory_service.Entities;
-using inventory_service.Services;
+using inventory_service.Data.Entities;
+using inventory_service.Data.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
