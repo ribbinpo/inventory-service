@@ -2,7 +2,7 @@
 namespace inventory_service.Data.Entities;
 public class CategoryProduct {
   public int CategoryId { get; set; }
-  public required Category Category { get; set; }
+  public Category Category { get; set; } = null!;
   public int ProductId { get; set; }
-  public required Product Product { get; set; }
+  public Product Product { get; set; } = null!;
 }

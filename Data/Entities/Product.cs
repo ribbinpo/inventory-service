@@ -12,6 +12,7 @@ public class Product
   public int? ReorderThreshold { get; set; }
   // Relationship
   public int ManufacturerId { get; set; }
-  public Manufacturer? Manufacturer { get; set; }
-  public ICollection<CategoryProduct>? CategoryProducts { get; set; }
+  public Manufacturer Manufacturer { get; set; } = null!;
+  public ICollection<CategoryProduct> CategoryProducts { get; } = [];
+  public ICollection<Category> Categories { get; } = [];
 }
