@@ -11,7 +11,12 @@ public class ProductService(InventoryDbContext dbContext)
   {
     try
     {
-      var product = await _dbContext.Products.Skip((page - 1) * limit).Take(limit).ToListAsync();
+      var product = await _dbContext.Products
+        .Include(p => p.Categories)
+        .Include(p => p.Manufacturer)
+        .Skip((page - 1) * limit)
+        .Take(limit)
+        .ToListAsync();
       return product;
     }
     catch (Exception e)
@@ -25,7 +30,10 @@ public class ProductService(InventoryDbContext dbContext)
   {
     try
     {
-      var product = await _dbContext.Products.FirstOrDefaultAsync(c => c.Id == id);
+      var product = await _dbContext.Products
+        .Include(p => p.Categories)
+        .Include(p => p.Manufacturer)
+        .FirstOrDefaultAsync(c => c.Id == id);
       return product;
     }
     catch (Exception e)
@@ -35,23 +43,41 @@ public class ProductService(InventoryDbContext dbContext)
     }
   }
 
-  // TODO: Relationship of manufacturer and category also
   public async Task<Product> CreateOne(CreateProductDTO product)
   {
-    var newProduct = new Product
-    {
-      Name = product.Name,
-      Description = product.Description,
-      Price = product.Price,
-      Quantity = product.Quantity,
-      ReorderThreshold = product.ReorderThreshold,
-      ManufacturerId = product.ManufacturerId
-    };
     try
     {
+      var Manufacturer = await _dbContext.Manufacturers.FirstOrDefaultAsync(m => m.Id == product.ManufacturerId) ?? throw new Exception($"Manufacturer with id {product.ManufacturerId} not found");
+
+      var newProduct = new Product
+      {
+        Name = product.Name,
+        Description = product.Description,
+        Price = product.Price,
+        Quantity = product.Quantity,
+        ReorderThreshold = product.ReorderThreshold,
+        Manufacturer = Manufacturer
+      };
+
+      var categoriesToAdd = product.CategoryIds != null ?
+          _dbContext.Categories
+            .Where(c => product.CategoryIds.Contains(c.Id))
+            .ToList()
+          : [];
+
+
+      foreach (var category in categoriesToAdd)
+      {
+        newProduct.Categories.Add(category);
+        category.Products.Add(newProduct);
+      }
+
       await _dbContext.Products.AddAsync(newProduct);
-      var id = await _dbContext.SaveChangesAsync();
-      newProduct.Id = id;
+      await _dbContext.SaveChangesAsync();
+
+      int newProductId = newProduct.Id;
+      Console.WriteLine(newProductId);
+
       return newProduct;
     }
     catch (Exception e)

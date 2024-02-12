@@ -17,7 +17,7 @@ builder.Services.AddEntityFrameworkMySql().AddDbContext<InventoryDbContext>((ser
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ManufacturerService>();

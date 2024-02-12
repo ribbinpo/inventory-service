@@ -16,6 +16,7 @@ public class CreateProductDTO
   [DefaultValue(0)]
   public int? ReorderThreshold { get; set; }
   public required int ManufacturerId { get; set; }
+  public List<int> CategoryIds { get; set; } = [];
 }
 
 public partial class UpdateProductDTO
